@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 
 public class TankMovement : MonoBehaviour
 {
@@ -10,6 +11,7 @@ public class TankMovement : MonoBehaviour
     public AudioClip m_EngineIdling;       
     public AudioClip m_EngineDriving;      
     public float m_PitchRange = 0.2f;
+    public UnityEvent hitObstacle;
 
 
     private string m_MovementAxisName;     
@@ -96,4 +98,12 @@ public class TankMovement : MonoBehaviour
         Quaternion turnRotation = Quaternion.Euler(0f, turn, 0f);
         m_Rigidbody.MoveRotation(m_Rigidbody.rotation * turnRotation);
     }
+
+    private void OnCollisionEnter(Collision col){
+
+        if(col.gameObject.CompareTag("Obstacles")){
+            hitObstacle.Invoke();
+        }
+    }
+
 }

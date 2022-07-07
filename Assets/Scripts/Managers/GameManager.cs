@@ -8,25 +8,29 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public int m_NumRoundsToWin = 5;            
-    public float m_StartDelay = 3f;             
+    public int m_NumRoundsToWin = 3;            
+    public float m_StartDelay = 3f;
+    public float m_ControlsDelay = 3f;             
     public float m_EndDelay = 3f;               
     public CameraControl m_CameraControl;       
-    public Text m_MessageText;                  
+    public Text m_MessageText;
+    public RawImage m_ControlsPage;       
+    public GameObject m_healthSpawn;           
     public GameObject[] m_TankPrefabs;
-    public TankManager[] m_Tanks;               
+    public TankManager[] m_Tanks;            
     public List<Transform> wayPointsForAI;
 
     private int m_RoundNumber;                  
-    private WaitForSeconds m_StartWait;         
+    private WaitForSeconds m_StartWait;
+    private WaitForSeconds m_ControlsWait;         
     private WaitForSeconds m_EndWait;           
     private TankManager m_RoundWinner;          
     private TankManager m_GameWinner;           
 
-
     private void Start()
     {
         m_StartWait = new WaitForSeconds(m_StartDelay);
+        m_ControlsWait = new WaitForSeconds(m_ControlsDelay);
         m_EndWait = new WaitForSeconds(m_EndDelay);
 
         SpawnAllTanks();
@@ -67,6 +71,11 @@ public class GameManager : MonoBehaviour
     private IEnumerator GameLoop()
     {
         yield return StartCoroutine(RoundStarting());
+        // Call coroutine to show Controls image if its round 1
+        if (m_RoundNumber ==1){
+            yield return StartCoroutine(RoundControls());
+            m_ControlsPage.gameObject.SetActive(false);
+        }
         yield return StartCoroutine(RoundPlaying());
         yield return StartCoroutine(RoundEnding());
 
@@ -91,9 +100,11 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator RoundPlaying()
     {
+        m_MessageText.text = string.Empty;
+        
         EnableTankControl();
 
-        m_MessageText.text = string.Empty;
+        m_healthSpawn.GetComponent<HealthController>().SpawnHealth();
 
         while (!OneTankLeft()) yield return null;
     }
@@ -114,6 +125,12 @@ public class GameManager : MonoBehaviour
         m_MessageText.text = message;
 
         yield return m_EndWait;
+    }
+
+    private IEnumerator RoundControls(){
+        m_ControlsPage.gameObject.SetActive(true);
+        m_MessageText.text = string.Empty;
+        yield return m_ControlsWait;
     }
 
 
@@ -171,7 +188,7 @@ public class GameManager : MonoBehaviour
 
         return sb.ToString();
     }
-
+    
 
     private void ResetAllTanks()
     {

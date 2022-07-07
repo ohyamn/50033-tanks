@@ -81,5 +81,4 @@ public class TankManager
         m_Instance.SetActive(false);
         m_Instance.SetActive(true);
     }
-
 }
